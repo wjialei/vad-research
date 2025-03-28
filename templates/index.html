@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Upload and Stream</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .container {
+            display: flex;
+            width: 80%;
+            height: 80%;
+            justify-content: space-between;
+        }
+        .upload-section, .video-section {
+            width: 48%;
+            border: 2px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .upload-section h2, .video-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .upload-section form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .upload-section input[type="file"] {
+            margin-bottom: 10px;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        img {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 左边：上传视频并播放 -->
+        <div class="upload-section">
+            <h2>Upload Your Video</h2>
+            <form action="/upload" method="post" enctype="multipart/form-data">
+                <input type="file" name="video_file" accept="video/*" required>
+                <input type="submit" value="Upload">
+            </form>
+            {% if video_path %}
+                <h2>Original Video</h2>
+                <video controls>
+                    <source src="{{ url_for('uploaded_file', filename=video_path) }}" type="video/*">
+                    Your browser does not support the video tag.
+                </video>
+            {% endif %}
+        </div>
+
+        <!-- 右边：处理后的视频 -->
+        <div class="video-section">
+            <h2>Processed Video Stream</h2>
+            <button id="startDetection">开始检测</button>
+            <img id="processedVideo" style="display: none;" alt="Processing Video">
+        </div>
+        <script>
+            document.getElementById('startDetection').addEventListener('click', function() {
+                const videoElement = document.getElementById('processedVideo');
+                videoElement.style.display = 'block'; // 显示视频区域
+                videoElement.src = "{{ url_for('video_feed') }}"; // 动态设置视频源
+                // 监听视频流结束事件
+                videoElement.onerror = function() {
+                    document.getElementById('videoEnded').style.display = 'block';
+                };
+            });
+        </script>
+    </div>
+
+</body>
+</html>
